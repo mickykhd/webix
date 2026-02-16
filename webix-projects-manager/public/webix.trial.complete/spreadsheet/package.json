@@ -1,0 +1,34 @@
+{
+  "name": "@xbs/spreadsheet",
+  "productTag": "spreadsheet",
+  "productName": "SpreadSheet",
+  "version": "11.3.0",
+  "description": "Javascript SpreadSheet for Web",
+  "scripts": {
+    "lint": "yarn eslint \"sources/**/*.js\"",
+    "build": "rollup -c ./rollup.config.mjs",
+    "watch": "rollup -c ./rollup.config.mjs -w",
+    "server": "node backend/index.js"
+  },
+  "private": true,
+  "homepage": "https://webix.com",
+  "devDependencies": {
+    "@babel/core": "7.28.5",
+    "@babel/plugin-transform-runtime": "7.28.5",
+    "@babel/preset-env": "7.28.5",
+    "@babel/runtime": "7.28.4",
+    "@rollup/plugin-babel": "6.1.0",
+    "@rollup/plugin-commonjs": "28.0.9",
+    "@rollup/plugin-eslint": "9.2.0",
+    "@rollup/plugin-node-resolve": "16.0.3",
+    "@rollup/plugin-replace": "6.0.3",
+    "@rollup/plugin-terser": "0.4.4",
+    "@seald-io/nedb": "4.1.2",
+    "@xbs/muon": "1.13.6",
+    "eslint": "9.39.1",
+    "express": "5.1.0",
+    "multer": "2.0.2",
+    "rollup": "4.53.1"
+  },
+  "dependencies": {}
+}

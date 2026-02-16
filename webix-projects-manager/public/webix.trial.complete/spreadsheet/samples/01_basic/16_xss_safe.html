@@ -1,0 +1,49 @@
+<!doctype html>
+<html>
+<head>
+    <title>XSS safety</title>
+    <meta  name = "viewport" content = "initial-scale = 1.0, maximum-scale = 1.0, user-scalable = no">
+
+    <script src="../../codebase/webix/webix.js?v=11.3.0" type="text/javascript" charset="utf-8"></script>
+    <script src="../../codebase/spreadsheet.js?v=11.3.0" type="text/javascript" charset="utf-8"></script>
+
+    <link rel="stylesheet" type="text/css" href="../../codebase/webix/webix.css?v=11.3.0">
+    <link rel="stylesheet" type="text/css" href="../../codebase/spreadsheet.css?v=11.3.0">
+
+    <script src="../common/data.js?v=11.3.0" charset="utf-8"></script>
+</head>
+<body>
+<script type="text/javascript">
+
+    webix.ready(function(){
+        const data = {
+            data: [
+                [1,1,"<b>text</b>"],
+                [1,2,"simple html"],
+                [2,1,'="<b>text</b>"'],
+                [2,2,"html in formula"],
+                [3,1,'=IMAGE("data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAoAAAAbCAMAAAByZu6xAAAAAXNSR0IB2cksfwAAAAlwSFlzAAAOxAAADsQBlSsOGwAAAFdQTFRFmdnqAAAAXjkmYj0qbkk2cU06AAAA/3mmra2tcU05////NrxgNbxgkJCQ7y84VFRULi4uLS0tj4+PiYmJTk5OQkJCbUk2YTwpSEhIhYWFgYGBf39/QEBAq14fJwAAAB10Uk5T/wD////////////////////////////////////nQ6jsAAAAgElEQVR4nI3OaxeCIAwG4C31jTRaYNoF/v/vbAMLP7rD5Tk724CIf0F7/k0nPs6usW8c9gT01sN4BnQXOgvlhTFObpwar5Xe3Zwv1G7YFMsK7ijDIB4BiDMNEjUteECzHCQKFtDKHCJmq30yv96fhPr1DEauTMlWoabyVqAt9toXKJ4FsGUNdyYAAAAASUVORK5CYII=")'],
+                [3,2,"base64 image"],
+                [4,1,'=IMAGE("https://docs.webix.com/samples/common/imgs/24/save.gif")'],
+                [4,2,"image with absolute path"],
+                
+            ],
+            sizes: [
+                [0, 1, 120],
+                [0, 2, 200]
+            ]
+        };
+
+        webix.ui({
+            rows: [
+                { view: "label", label: "Base" },
+                { view:"spreadsheet", data: webix.copy(data), toolbar:"full" },
+                { view: "label", label: "XSS safe" },
+                { view:"spreadsheet", data: webix.copy(data), toolbar:"full", xssSafe:true },
+            ]
+        });
+    });
+
+</script>
+</body>
+</html>

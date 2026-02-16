@@ -1,0 +1,100 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<meta charset="utf-8" />
+		<title>Chat: Calls with sound</title>
+		<!-- Webix Library -->
+		<script type="text/javascript" src="../../codebase/webix/webix.js"></script>
+		<link
+			rel="stylesheet"
+			type="text/css"
+			href="../../codebase/webix/webix.css"
+		/>
+
+		<!-- App -->
+		<script type="text/javascript" src="../../codebase/chat.js"></script>
+		<link rel="stylesheet" type="text/css" href="../../codebase/chat.css" />
+
+		<!-- Helpers, necessary for demo only -->
+		<script type="text/javascript" src="../common/login.js"></script>
+	</head>
+	<body>
+		<script>
+			var server = "https://docs.webix.com/chat-backend/";
+
+			let audio;
+			login(server, 10).then(start);
+
+			function start(token) {
+				webix.ready(function() {
+					if (webix.env.mobile) webix.ui.fullScreen();
+					webix.CustomScroll.init();
+
+					const app = new chat.App({
+						token,
+						url: server + "api/v1",
+						calls: {
+							enabled: true,
+							groupCalls: true,
+							livekitConfig: {
+								host: "https://livekit.webix.io",
+							},
+						},
+					});
+					app.render(document.body);
+
+					const state = app.getParam("state");
+					const statuses = app.getService("backend").callStatuses;
+
+					state.$changes.attachEvent("callStatus", v => {
+						if (v == statuses.active) {
+							// stop audio when the call has been accepted
+							stopAudio();
+						}
+
+						if (v == statuses.init) {
+							if (state.callInitiator === app.config.user) {
+								// start outgoing audio
+								playOutgoingAudio();
+							} else {
+								// start incoming audio
+								playIncomingAudio();
+							}
+						}
+
+						if (v >= 900 || v === "") {
+							// play sound on call ended
+							playEndAudio();
+						}
+					});
+				});
+
+				function playIncomingAudio() {
+					playAudio("../common/incoming_call.mp3", true);
+				}
+
+				function playOutgoingAudio() {
+					playAudio("../common/outgoing_call.mp3", true);
+				}
+
+				function playEndAudio() {
+					playAudio("../common/end_call.mp3");
+				}
+
+				function stopAudio() {
+					if (audio != null) {
+						audio.pause();
+						audio = null;
+					}
+				}
+
+				function playAudio(src, loop) {
+					stopAudio();
+					audio = new Audio(src);
+					audio.autoplay = true;
+					audio.loop = !!loop;
+				}
+			}
+		</script>
+	</body>
+</html>

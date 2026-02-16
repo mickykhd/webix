@@ -1,0 +1,47 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<meta charset="utf-8" />
+		<title>Chat with Bot</title>
+		<!-- Webix Library -->
+		<script type="text/javascript" src="../../codebase/webix/webix.js"></script>
+		<link
+			rel="stylesheet"
+			type="text/css"
+			href="../../codebase/webix/webix.css"
+		/>
+
+		<!-- App -->
+		<script type="text/javascript" src="../../codebase/chat.js"></script>
+		<link rel="stylesheet" type="text/css" href="../../codebase/chat.css" />
+
+		<!-- Helpers, necessary for demo only -->
+		<script type="text/javascript" src="../common/login.js"></script>
+	</head>
+	<body>
+		<script>
+			var server = "https://docs.webix.com/chat-backend/";
+
+			let audio;
+			loginUser(server, 88).then(start);
+
+			function start(token) {
+				webix.ready(function() {
+					if (webix.env.mobile) webix.ui.fullScreen();
+					webix.CustomScroll.init();
+
+					const app = new chat.App({
+						token,
+						mode: "single",
+						chatId: 3,
+						url: server + "api/v1",
+					});
+					app.render(document.body);
+
+					const state = app.getParam("state");
+					const statuses = app.getService("backend").callStatuses;
+				});
+			}
+		</script>
+	</body>
+</html>

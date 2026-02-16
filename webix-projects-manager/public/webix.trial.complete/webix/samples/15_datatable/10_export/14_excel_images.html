@@ -1,0 +1,74 @@
+<!doctype html>
+<html>
+<head>
+	<title>Export to Excel: Cell Images</title>
+	<link rel="stylesheet" href="../../../codebase/webix.css?v=11.3.0" type="text/css"   charset="utf-8">
+	<script src="../../../codebase/webix.js?v=11.3.0" type="text/javascript" charset="utf-8"></script>
+
+	<link rel="stylesheet" type="text/css" href="../common/samples.css?v=11.3.0">
+	<script type="text/javascript" src="../../common/testdata.js?v=11.3.0"></script>
+	<style type="text/css">
+		html,body{ height:100%; margin:0}
+		.webix_view.toolbar{
+			background: #fafafa;
+		}
+	</style>
+</head>
+<body>
+	<div id="dataDiv"></div>
+
+	<script>
+		const data = webix.copy(small_film_set);
+
+		data.forEach(item => item.image = "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAACAAAAAdCAYAAADLnm6HAAADwUlEQVR4Xr2V3U+bVRzHCd5wIzEx8dIbL73Q/8Jro5o4jS564dhWYCrThQnOBBilzIGUV0sZb+3o1rLN0VJaKC0LpayDAgymRp2JeqP+C1/PJ3FP0pfnSS/smnyS33PO75zPl3OelrrSz1unPm9o7pm4fM49+fu5Pr9KYZx5+upq8Kk/0zXa7w0ltZz7QeuFx4ZfLXhmnHn66P+/AzS0uCf/imw81PXUQ80nD8pgPJI50kAgrtY+f3WYU3OZU3uzilNrZEFg9UAzK3u2zCb2FNk4VuLBz3LmFyUNS9ljfXs9YZ2a7b239vr+5J5rCKfxR+k7VH/WJBsOJRXP/ah04TfD45rA3jhw4cRt3fvte0e6kTZ3v3ZYU3DgwonbuvfQ+pGCq4dPBVw4cRPgOR4WUoe8fE8FXDhxWwE4Hr5m1eANpfTR+W5qoGas2vW4ygMETbK5xL4jo+ENavnubKrp0pA800tAzVhRjwO4ygKYZPuO3/3hmxm93XRBF65MqX8myldK77V+BdS6Mhtjjh4NhzNOe+EqD0Cy6fieLdzdWHhNJ8/36ERL55PvNFDrRHMHc/TQ67QXrvIAJJtaLlTkaiCpwYWURkKryEDtQwF9t5jWeGTd1EHGgB56WWO3H67iAC3mYTpekD+2W5FTFz0yv1zWX37RG1R06xE/x6Bo9hFjzNFDL2ts98PVUhqAZL7oTkViuZ8UTOT1af81JBoOJeRf3rXmqb0LK8zRQy9r7PbDVR5gMlbQxNKOLd/Mr+gTzxQSdfsWy+Z7fLeYo4dep71wFQdoNg++6K7G7z6oyMnPuvSO60vrhWvqHJA3sskcmDrLGHP00Msa2/1wNZcGINno9/mKzMXzimT2NRvbQsI/EnPXHWrzTBn81IwxRw+9rLHbD1dxAJd5INnInfsVmYxx3zvq+O9FA1f3mD5o6wZq5EAPvayx3Q+XqzQAyby3t21xzyf14Re98t5Y1bWlrPXCAfV0dIs5etRneh32wlUc4Kzbb5LlNXRr2xZSh9MHCqwdyBvOINVMLGfYptaQGWOOnjHT67QXLpxWgDO9fpPsvgYXc46QnNo9t6JL4zfli+0ANWNFPU7gwmkFOH2ZANsaiGxVxdjdvCL3jqmBmrGq1+PCaQX4uMv3z2B4E4GuhrM1BQcunE8CNL7b5p5oH4nIPZ+SJ5hWX2C9JrA3DlzGOYmbAA2Nz7/w0mvvt86+frrz7zdcX6uW4MCFEzcB6g3PGl40vGx4xfBqjWBvHLhw4q6DZ0jDkXAvNQYHLpx1/wJsd8eSoFZ04QAAAABJRU5ErkJggg==");
+
+		webix.ui({
+			container:"dataDiv",
+			padding: 20,
+			rows: [
+				{
+					id: "table",
+					view:"datatable",
+					columns:[
+						{ id:"image",	header:"", width:50, template: item => `<img src="${item.image}">`},
+						{ id:"rank",	header:"", width:50},
+						{ id:"title",	header:"Film title",width:250},
+						{ id:"year",	header:"Released" , width:80},
+						{ id:"votes",	header:"Votes", 	width:100}
+					],
+					autowidth:true,
+					height: 450,
+					data
+				},
+				{
+					view: "button", label: "To Excel", click:function(){
+						var table = $$("table");
+						if(!table.$getExportValue)
+							table.$getExportValue = function(row, column){
+								var val = table.getItem(row)[column];
+								if(column == "image"){
+									var colIndex = table.getColumnIndex(column);
+									return {
+										image: webix.promise.resolve({
+											data: val,
+											position:{
+												type: "twoCellAnchor",
+												from: { col: colIndex, row },
+												to: { 
+													col: colIndex+1,
+													row: row+1
+												},
+											}
+										})
+									};
+								}
+								else return val;
+							};
+						webix.toExcel($$("table"));
+					}
+				}
+			]
+		});
+	</script>
+</body>
+</html>

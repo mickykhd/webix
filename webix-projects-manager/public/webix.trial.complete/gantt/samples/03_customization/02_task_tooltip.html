@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<meta charset="utf-8" />
+		<title>Gantt: Custom Tooltip</title>
+		<!-- Webix Library -->
+		<script type="text/javascript" src="../../codebase/webix/webix.js"></script>
+		<link
+			rel="stylesheet"
+			type="text/css"
+			href="../../codebase/webix/webix.css"
+		/>
+
+		<!-- App -->
+		<script type="text/javascript" src="../../codebase/gantt.js"></script>
+		<link rel="stylesheet" type="text/css" href="../../codebase/gantt.css" />
+	</head>
+	<body>
+		<style>
+			.custom_tooltip_header {
+				font-weight: bold;
+				margin-bottom: 8px;
+			}
+		</style>
+		<script>
+			webix.ready(function() {
+				if (webix.env.mobile) webix.ui.fullScreen();
+				webix.CustomScroll.init();
+
+				class CustomBarsView extends gantt.views["chart/bars"] {
+					GetTooltip(obj) {
+						if (obj.type == "milestone") return `You've reached ${obj.text}`;
+
+						const type = obj.type.charAt(0).toUpperCase() + obj.type.slice(1);
+						const days = obj.duration > 1 ? "days" : "day";
+						const title = obj.text ? obj.text : "(no title)";
+						return `${type}: ${title}<br>
+							Scheduled for ${obj.duration} ${days}<br>
+							${obj.details ?? ""}`;
+					}
+				}
+
+				webix.ui({
+					view: "gantt",
+					url: "https://docs.webix.com/gantt-backend/",
+					override: new Map([[gantt.views["chart/bars"], CustomBarsView]]),
+				});
+			});
+		</script>
+	</body>
+</html>

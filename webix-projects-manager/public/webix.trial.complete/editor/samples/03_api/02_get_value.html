@@ -1,0 +1,108 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<meta charset="utf-8" />
+		<title>Webix Rich Text Editor: Get Value</title>
+		<!-- Webix Library -->
+		<script type="text/javascript" src="../../codebase/webix/webix.js"></script>
+		<link
+			rel="stylesheet"
+			type="text/css"
+			href="../../codebase/webix/webix.css"
+		/>
+		<link
+			rel="stylesheet"
+			href="https://webix.io/dev/fonts/wxo/wxo-icons.css"
+		/>
+
+		<!-- App -->
+		<script type="text/javascript" src="../../codebase/editor.js"></script>
+		<link rel="stylesheet" type="text/css" href="../../codebase/editor.css" />
+
+		<style type="text/css">
+			.value .webix_template {
+				white-space: break-spaces;
+			}
+		</style>
+	</head>
+	<body>
+		<script>
+			webix.ready(() => {
+				if (webix.env.mobile) webix.ui.fullScreen();
+
+				const text = `
+					<p>Hello World</p>
+					<p><a href="https://docs.webix.com/desktop__editor.html">https://docs.webix.com/desktop__editor.html</a></p>
+					<p>Sample text</p>
+				`;
+
+				function setValues(view) {
+					const value = $$("editor").getValue(view);
+					$$(view).setHTML(webix.template.escape(value));
+				}
+
+				webix.ui({
+					type: "space",
+					rows: [
+						{
+							view: "editor",
+							id: "editor",
+							upload: "https://docs.webix.com/richtext-backend/images",
+							on: {
+								onChange() {
+									setValues($$("tabs").getValue());
+								},
+							},
+						},
+						{
+							view: "tabview",
+							css: "value",
+							id: "tabs",
+							height: 300,
+							cells: [
+								{
+									header: "HTML",
+									body: {
+										view: "template",
+										id: "html",
+									},
+								},
+								{
+									header: "Text",
+									body: {
+										view: "template",
+										id: "text",
+									},
+								},
+								{
+									header: "Markdown",
+									body: {
+										view: "template",
+										id: "markdown",
+									},
+								},
+								{
+									header: "Raw",
+									body: {
+										view: "template",
+										id: "raw",
+									},
+								},
+							],
+							multiview: {
+								on: {
+									onViewChange(prev, next) {
+										setValues(next);
+									},
+								},
+							},
+						},
+					],
+				});
+
+				$$("editor").setValue(text);
+				webix.delay(() => setValues($$("tabs").getValue()));
+			});
+		</script>
+	</body>
+</html>

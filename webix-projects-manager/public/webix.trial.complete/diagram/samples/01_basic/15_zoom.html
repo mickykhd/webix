@@ -1,0 +1,71 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<title>Diagram: Zoom</title>
+		<meta
+			name="viewport"
+			content="initial-scale = 1.0, maximum-scale = 1.0, user-scalable = no"
+		/>
+
+		<!-- Webix Library -->
+		<script type="text/javascript" src="../../codebase/webix/webix.js"></script>
+		<link
+			rel="stylesheet"
+			type="text/css"
+			href="../../codebase/webix/webix.css"
+		/>
+
+		<!-- Diagram -->
+		<script type="text/javascript" src="../../codebase/diagram.js"></script>
+		<link rel="stylesheet" type="text/css" href="../../codebase/diagram.css" />
+
+		<script src="../common/data.js"></script>
+	</head>
+	<body>
+		<script type="text/javascript">
+			webix.ready(function() {
+				webix.CustomScroll.init();
+
+				webix.ui({
+					rows: [
+						{
+							view: "toolbar",
+							paddingX: 15,
+							elements: [
+								{
+									view: "counter",
+									label: "Zoom level:",
+									labelWidth: 90,
+									min: 0.2,
+									max: 3,
+									step: 0.1,
+									value: 1,
+									on: {
+										onChange: function(value) {
+											$$("diagram").define({ zoom: value });
+											$$("diagram").refresh();
+										},
+									},
+								},
+								{},
+							],
+						},
+						{
+							view: "diagram",
+							id: "diagram",
+							root: "root",
+							item: {
+								width: 120,
+								height: 50,
+								marginY: -20,
+							},
+							select: true,
+							data: tree_data,
+							links: tree_links,
+						},
+					],
+				});
+			});
+		</script>
+	</body>
+</html>

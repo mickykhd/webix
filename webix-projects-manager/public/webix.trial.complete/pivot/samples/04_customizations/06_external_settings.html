@@ -1,0 +1,205 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<meta charset="utf-8" />
+		<title>Pivot: External Settings</title>
+		<!-- Webix Library -->
+		<script type="text/javascript" src="../../codebase/webix/webix.js"></script>
+		<link
+			rel="stylesheet"
+			type="text/css"
+			href="../../codebase/webix/webix.css"
+		/>
+
+		<!-- pivot -->
+		<script type="text/javascript" src="../../codebase/pivot.js"></script>
+		<link rel="stylesheet" type="text/css" href="../../codebase/pivot.css" />
+
+		<style>
+			.webix_drop_area {
+				width: 100%;
+				height: 100%;
+			}
+			.field-filter {
+				color: #dadee0;
+				float: right;
+				margin-top: 6px;
+			}
+			.field-filter-active {
+				color: #1ca1c1;
+			}
+			.field-name {
+				line-height: 28px;
+				font-weight: 500;
+			}
+			.field-move {
+				line-height: 16px;
+			}
+			.field-move .webix_template div {
+				color: #94a1b3;
+				font-size: 10px;
+			}
+			.dnd-list {
+				border: 1px dashed #1ca1c1;
+				background: #ebedf0;
+			}
+			.dnd-list .webix_list_item {
+				background: white;
+			}
+		</style>
+	</head>
+	<body>
+		<script>
+			webix.ready(function() {
+				webix.CustomScroll.init();
+
+				function getListConfig(id, value, horizontal) {
+					let config = {
+						id,
+						view: "list",
+						css: "dnd-list",
+						drag: "move",
+						on: {
+							onAfterDrop: () => updateStructure(),
+						},
+						onClick: {
+							"field-filter": function(e, id) {
+								const pivot = $$("pivot");
+								const filterPos = pivot
+									.getStructure()
+									.filters.findIndex(filter => filter.name == id);
+								const structure = webix.copy(pivot.getStructure());
+								if (filterPos == -1) structure.filters.push({ name: id });
+								else structure.filters.splice(filterPos, 1);
+								pivot.setStructure(structure);
+							},
+						},
+						template: obj => {
+							const filter = $$("pivot")
+								.getStructure()
+								.filters.find(filter => filter.name == obj.id);
+							const css = filter ? " field-filter-active" : "";
+							return `${obj.value}<span class="webix_icon wxi-filter field-filter${css}"></span>`;
+						},
+					};
+
+					const moveLabel = id != "fields";
+					const name = {
+						template: `${value}${
+							moveLabel ? "<div>MOVE FIELDS HERE</div>" : ""
+						}`,
+						css: "field-name" + (moveLabel ? " field-move" : ""),
+						width: 148,
+						height: 36,
+					};
+
+					if (horizontal)
+						return {
+							cols: [
+								name,
+								webix.extend(config, {
+									layout: "x",
+									scroll: "x",
+									type: { width: 110 },
+								}),
+							],
+						};
+
+					return { rows: [name, config] };
+				}
+
+				webix.ui({
+					rows: [
+						{
+							view: "toggle",
+							offLabel: "Hide Settings",
+							onLabel: "Show Settings",
+							on: {
+								onChange: val => {
+									$$("rows")
+										.getParentView()
+										[val ? "hide" : "show"]();
+									$$("topSettings")[val ? "hide" : "show"]();
+								},
+							},
+						},
+						{
+							type: "space",
+							id: "topSettings",
+							cols: [
+								{ width: 160 },
+								{
+									margin: 20,
+									rows: [
+										getListConfig("fields", "AVAILABLE FIELDS", true),
+										getListConfig("columns", "COLUMNS", true),
+									],
+								},
+							],
+						},
+						{
+							borderless: true,
+							margin: 20,
+							type: "space",
+							cols: [
+								getListConfig("rows", "ROWS"),
+								{
+									view: "pivot",
+									id: "pivot",
+									fields: [
+										{ id: "name", value: "Name", type: "text" },
+										{ id: "year", value: "Year", type: "number" },
+										{ id: "continent", value: "Continent", type: "text" },
+										{ id: "form", value: "Form", type: "text" },
+										{ id: "gdp", value: "Wealth", type: "number" },
+										{ id: "oil", value: "Petrol", type: "number" },
+										{ id: "balance", value: "Income", type: "number" },
+									],
+									structure: {
+										rows: ["form", "name"],
+										columns: ["year"],
+										values: [{ name: "oil", operation: ["min", "sum"] }],
+									},
+									url: "https://cdn.webix.com/demodata/pivot.json",
+								},
+							],
+						},
+					],
+				});
+
+				const pivot = $$("pivot");
+				const cols = $$("columns");
+				const rows = $$("rows");
+
+				function updateStructure() {
+					const structure = webix.copy(pivot.getStructure());
+					if (pivot.config.mode == "chart")
+						structure.groupBy = cols.data.order[0];
+					structure.columns = [...cols.data.order];
+					structure.rows = [...rows.data.order];
+					pivot.setStructure(structure);
+				}
+
+				pivot.getState().$observe("structure", structure => {
+					const fields = pivot.config.fields;
+					cols.clearAll();
+					cols.parse(
+						structure.columns.map(id => fields.find(field => field.id == id))
+					);
+					rows.clearAll();
+					rows.parse(
+						structure.rows.map(id => fields.find(field => field.id == id))
+					);
+					$$("fields").clearAll();
+					$$("fields").parse(
+						fields.filter(
+							field =>
+								structure.columns.indexOf(field.id) == -1 &&
+								structure.rows.indexOf(field.id) == -1
+						)
+					);
+				});
+			});
+		</script>
+	</body>
+</html>

@@ -1,0 +1,39 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<meta charset="utf-8" />
+		<title>Dimming Past Events</title>
+		<!-- Webix Library -->
+		<script type="text/javascript" src="../../codebase/webix/webix.js"></script>
+		<link
+			rel="stylesheet"
+			type="text/css"
+			href="../../codebase/webix/webix.css"
+		/>
+
+		<!-- Scheduler -->
+		<script type="text/javascript" src="../../codebase/scheduler.js"></script>
+		<link
+			rel="stylesheet"
+			type="text/css"
+			href="../../codebase/scheduler.css"
+		/>
+	</head>
+	<body>
+		<script>
+			webix.ready(function() {
+				webix.CustomScroll.init();
+
+				webix.ui({
+					id: "scheduler",
+					view: "scheduler",
+					dimPastEvents: true,
+					mode: "week",
+					timeline: true,
+					units: true,
+					url: "https://docs.webix.com/calendar-backend/",
+				});
+			});
+		</script>
+	</body>
+</html>

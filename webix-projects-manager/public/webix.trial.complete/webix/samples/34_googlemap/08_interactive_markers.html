@@ -1,0 +1,52 @@
+<!doctype html>
+<html>
+<head>
+	<link rel="stylesheet" href="../../codebase/webix.css?v=11.3.0" type="text/css"   charset="utf-8">
+	<script src="../../codebase/webix.js?v=11.3.0" type="text/javascript" charset="utf-8"></script>
+	<title>GoogleMap::Interactive Markers</title>
+	<style type="text/css">
+		.user{
+			padding: 10px;
+			border-radius: 40px;
+			background: #023047;
+			color: #FFFFFF;
+			font-size: 20px;
+		}
+
+		.user:not(.active) .name{
+			display: none;
+		}
+	</style>
+</head>
+<body>
+	<div id="sample_div" style='width:600px; height:300px; margin:50px;'></div>
+	
+	<script type="text/javascript">
+		
+		webix.ui({
+			container:"sample_div",
+			// provide your own Google API key
+			// https://developers.google.com/maps/documentation/javascript/get-api-key
+			key:"AIzaSyAi0oVNVO-e603aUY8SILdD4v9bVBkmiTg",
+			// Map ID is required for advanced markers
+			// https://developers.google.com/maps/documentation/javascript/advanced-markers/migration
+			mapId:"DEMO_MAP_ID",
+			view:"google-map",
+			zoom:6,
+			center:[ 48.724, 8.215 ],
+			template: function(item){
+				const element = webix.html.create("div", {class:"user"}, `<span class='webix_icon wxi-user'></span><span class='name'>${item.name}</span>`);
+				element.onclick = function(){
+					this.classList.toggle("active");
+				};
+				return element;
+			},
+			data:[
+				{ id:1, lat:48.782, lng:9.177, name:"John Smith" },
+				{ id:2, lat:47.366, lng:8.55, name:"Anna Brown" },
+				{ id:3, lat: 48.137, lng: 11.575, name:"Mark Lee" }
+			]
+		});
+	</script>
+</body>
+</html>

@@ -1,0 +1,78 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<meta charset="utf-8" />
+		<title>Webix Rich Text Editor: Set Value</title>
+		<!-- Webix Library -->
+		<script type="text/javascript" src="../../codebase/webix/webix.js"></script>
+		<link
+			rel="stylesheet"
+			type="text/css"
+			href="../../codebase/webix/webix.css"
+		/>
+
+		<!-- App -->
+		<script type="text/javascript" src="../../codebase/editor.js"></script>
+		<link rel="stylesheet" type="text/css" href="../../codebase/editor.css" />
+	</head>
+	<body>
+		<script>
+			webix.ready(() => {
+				if (webix.env.mobile) webix.ui.fullScreen();
+
+				const html = `<p>Hello <b>World</b></p>
+<p><a href="https://docs.webix.com/desktop__editor.html">Webix Editor</a></p>
+<p>Sample text</p>`;
+
+				const text = `Hello World
+
+Webix Editor - https://docs.webix.com/desktop__editor.html
+
+Sample text`;
+
+				const md = `Hello **World**
+
+[Webix Editor](https://docs.webix.com/desktop__editor.html)
+
+Sample text`;
+
+				webix.ui({
+					type: "space",
+					rows: [
+						{
+							cols: [
+								{
+									view: "button",
+									value: "Set value (text)",
+									click: () => $$("editor").setValue(text, "text"),
+								},
+								{
+									view: "button",
+									value: "Set value (html)",
+									click: () => $$("editor").setValue(html),
+								},
+								{
+									view: "button",
+									value: "Set value (markdown)",
+									click: () => $$("editor").setValue(md, "markdown"),
+								},
+							],
+						},
+						{
+							view: "editor",
+							id: "editor",
+							upload: "https://docs.webix.com/richtext-backend/images",
+							on: {
+								onChange() {
+									webix.message("value changed");
+								},
+							},
+						},
+					],
+				});
+
+				$$("editor").setValue(html);
+			});
+		</script>
+	</body>
+</html>

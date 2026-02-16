@@ -1,0 +1,90 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<meta charset="utf-8" />
+		<title>RichText: Text Stats</title>
+		<!-- Webix Library -->
+		<script type="text/javascript" src="../../codebase/webix/webix.js"></script>
+		<link
+			rel="stylesheet"
+			type="text/css"
+			href="../../codebase/webix/webix.css"
+		/>
+
+		<!-- App -->
+		<script type="text/javascript" src="../../codebase/editor.js"></script>
+		<link rel="stylesheet" type="text/css" href="../../codebase/editor.css" />
+
+		<!-- Test data -->
+		<script src="../common/data.js"></script>
+
+		<style type="text/css">
+			.stats {
+				text-align: right;
+			}
+			.stats span {
+				padding: 0 10px;
+			}
+		</style>
+	</head>
+	<body>
+		<script>
+			webix.ready(() => {
+				if (webix.env.mobile) webix.ui.fullScreen();
+
+				function setStats() {
+					const value = $$("richtext").getValue("text");
+					const symbols = [
+						...new Intl.Segmenter().segment(value.replaceAll("\n", "")),
+					].map(x => x.segment);
+					$$("stats").setValues({
+						lines: value.replaceAll("\n\n", "\n").split("\n").length,
+						paragraphs: value.split("\n\n").length,
+						words: value
+							.replaceAll("\n", " ")
+							.split(" ")
+							.filter(v => v).length,
+						chars: symbols.length,
+						charsNoSpace: symbols.filter(v => v != " ").length,
+					});
+				}
+
+				webix.ui({
+					type: "space",
+					rows: [
+						{
+							rows: [
+								{
+									view: "editor",
+									id: "richtext",
+									value: dummyText,
+									upload: "https://docs.webix.com/richtext-backend/images",
+									on: {
+										onChange() {
+											setStats();
+										},
+									},
+								},
+								{
+									id: "stats",
+									css: "stats",
+									autoheight: true,
+									template: obj => {
+										return `
+											<span><b>lines:</b> ${obj.lines}</span>
+											<span><b>paragraphs:</b> ${obj.paragraphs}</span>
+											<span><b>words:</b> ${obj.words}</span>
+											<span><b>symbols:</b> ${obj.chars}</span>
+											<span><b>symbols without spaces:</b> ${obj.charsNoSpace}</span>`;
+									},
+								},
+							],
+						},
+					],
+				});
+
+				webix.delay(() => setStats());
+			});
+		</script>
+	</body>
+</html>

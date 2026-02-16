@@ -1,0 +1,93 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<meta charset="utf-8" />
+		<title>Gantt: Scrolling to a date</title>
+		<!-- Webix Library -->
+		<script type="text/javascript" src="../../codebase/webix/webix.js"></script>
+		<link
+			rel="stylesheet"
+			type="text/css"
+			href="../../codebase/webix/webix.css"
+		/>
+
+		<!-- App -->
+		<script type="text/javascript" src="../../codebase/gantt.js"></script>
+		<link rel="stylesheet" type="text/css" href="../../codebase/gantt.css" />
+	</head>
+	<body>
+		<script>
+			webix.ready(function() {
+				if (webix.env.mobile) webix.ui.fullScreen();
+				webix.CustomScroll.init();
+
+				const date = new Date(2025, 0, 20);
+
+				webix.ui({
+					rows: [
+						{
+							padding: 10,
+							cols: [
+								{
+									view: "datepicker",
+									id: "date-selector",
+									width: 386,
+									value: date,
+									label: "Choose the date",
+									labelWidth: 130,
+									on: {
+										onChange(date) {
+											gantt.getState().date = date;
+										},
+									},
+								},
+								{},
+							],
+						},
+						{
+							id: "gantt",
+							view: "gantt",
+							url: "https://docs.webix.com/gantt-backend/",
+							scales: [
+								{
+									unit: "month",
+									format: "%F, %Y",
+								},
+								{
+									unit: "week",
+									format: function(date) {
+										const start = webix.Date.weekStart(date);
+										var parser = webix.Date.dateToStr("%d %M");
+										var end = webix.Date.add(
+											webix.Date.add(start, 1, "week", true),
+											-1,
+											"day",
+											true
+										);
+										return parser(start) + " - " + parser(end);
+									},
+								},
+								{ unit: "day", format: "%d" },
+							],
+							date, // initial date scroll
+						},
+					],
+				});
+
+				const gantt = $$("gantt");
+				const datePicker = $$("date-selector")
+					.getPopup()
+					.getBody();
+
+				gantt.$app.on("onScalesUpdate", scales => {
+					datePicker.define({
+						date: scales.start,
+						minDate: scales.start,
+						maxDate: webix.Date.add(scales.end, -1, "day", true),
+					});
+					datePicker.refresh();
+				});
+			});
+		</script>
+	</body>
+</html>

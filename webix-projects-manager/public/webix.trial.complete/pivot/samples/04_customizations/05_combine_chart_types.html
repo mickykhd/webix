@@ -1,0 +1,142 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<meta charset="utf-8" />
+		<title>Pivot: Combine Different Chart Types</title>
+		<!-- Webix Library -->
+		<script type="text/javascript" src="../../codebase/webix/webix.js"></script>
+		<link
+			rel="stylesheet"
+			type="text/css"
+			href="../../codebase/webix/webix.css"
+		/>
+
+		<!-- pivot -->
+		<script type="text/javascript" src="../../codebase/pivot.js"></script>
+		<link rel="stylesheet" type="text/css" href="../../codebase/pivot.css" />
+	</head>
+	<body>
+		<script>
+			webix.ready(function() {
+				class MyValues extends pivot.views["config/properties/values"] {
+					init() {
+						super.init();
+
+						this.on(this.State.$changes, "mode", () => this.ToggleTypes());
+						this.on(this.State.$changes, "chart", () => this.ToggleTypes());
+					}
+					ToggleTypes() {
+						const mode = this.State.mode;
+						const type = this.State.chart.type;
+
+						const layout = this.$$("forms");
+						const forms = layout.getChildViews();
+
+						for (let i = 0; i < forms.length; i++) {
+							const input = forms[i].getChildViews()[0].elements.type;
+							if (mode == "chart" && type == "mixed") input.show();
+							else input.hide();
+						}
+					}
+					ItemConfig(val, i) {
+						const config = super.ItemConfig(val, i);
+						const type = this.State.chart.type;
+
+						config.splice(2, 0, {
+							view: "richselect",
+							name: "type",
+							width: 120,
+							hidden: this.State.mode != "chart" || type != "mixed",
+							value: val && val.type ? val.type : "bar",
+							options: {
+								css: "webix_pivot_suggest",
+								data: [
+									{ id: "bar", value: "Bar" },
+									{ id: "line", value: "Line" },
+									{ id: "area", value: "Area" },
+									{ id: "spline", value: "Spline" },
+									{ id: "splineArea", value: "Spline Area" },
+								],
+							},
+						});
+
+						return config;
+					}
+				}
+
+				class MyMain extends pivot.views["main"] {
+					config() {
+						const config = super.config();
+						if (!this.Compact) config.rows[1].cols[1].width = 600;
+						return config;
+					}
+				}
+
+				class MyChart extends pivot.views["chart"] {
+					config() {
+						const config = super.config();
+						if (config.type == "mixed") config.type = "bar";
+						return config;
+					}
+					SetSeries(values) {
+						for (let i = 0; i < values.length; i++)
+							this.$$("data").addSeries(
+								this.GetSeriesConfig(
+									values[i],
+									i,
+									this.State.chart.type == "mixed"
+										? this.State.structure.values[i].type || "bar"
+										: null
+								)
+							);
+					}
+				}
+
+				class MyChartProperties extends pivot.views["config/properties/chart"] {
+					config() {
+						const config = super.config();
+						const type = config.elements[0];
+						type.label = "Chart type";
+						type.options.data.push({ id: "mixed", value: "Mixed" });
+						return config;
+					}
+					HandleVisibility() {
+						const form = this.getRoot();
+						const type = form.getValues().type;
+						if (type == "mixed") {
+							form.showBatch("scale");
+							form.showBatch("axis", true);
+							return;
+						}
+						super.HandleVisibility();
+					}
+				}
+
+				webix.CustomScroll.init();
+
+				webix.ui({
+					view: "pivot",
+					mode: "chart",
+					structure: {
+						groupBy: "year",
+						rows: ["form", "name"],
+						values: [
+							{ name: "oil", type: "bar", operation: "max" },
+							{ name: "oil", type: "line", operation: "sum" },
+						],
+					},
+					chart: {
+						type: "mixed",
+					},
+					url: "../common/data.json",
+					override: new Map([
+						[pivot.views["config/properties/values"], MyValues],
+						[pivot.views["config/properties/chart"], MyChartProperties],
+						[pivot.views["main"], MyMain],
+						[pivot.views["chart"], MyChart],
+					]),
+				});
+			});
+		</script>
+	</body>
+</html>

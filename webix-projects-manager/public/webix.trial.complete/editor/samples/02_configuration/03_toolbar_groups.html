@@ -1,0 +1,52 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<meta charset="utf-8" />
+		<title>Webix Rich Text Editor: Toolbar Groups</title>
+		<!-- Webix Library -->
+		<script type="text/javascript" src="../../codebase/webix/webix.js"></script>
+		<link
+			rel="stylesheet"
+			type="text/css"
+			href="../../codebase/webix/webix.css"
+		/>
+
+		<!-- App -->
+		<script type="text/javascript" src="../../codebase/editor.js"></script>
+		<link rel="stylesheet" type="text/css" href="../../codebase/editor.css" />
+
+		<!-- Test data -->
+		<script src="../common/data.js"></script>
+	</head>
+	<body>
+		<script>
+			webix.ready(() => {
+				if (webix.env.mobile) webix.ui.fullScreen();
+
+				webix.ui({
+					type: "space",
+					cols: [
+						{
+							view: "editor",
+							value: dummyText,
+							toolbar: {
+								history: true,
+								align: ["align-left", "align-center", "align-right"],
+								"custom-group": [
+									"clear",
+									{
+										view: "button",
+										width: 100,
+										value: "Button",
+										click: () => webix.message("action"),
+									},
+								],
+							},
+							upload: "https://docs.webix.com/richtext-backend/images",
+						},
+					],
+				});
+			});
+		</script>
+	</body>
+</html>

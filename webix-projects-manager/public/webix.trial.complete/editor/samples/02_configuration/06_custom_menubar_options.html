@@ -1,0 +1,54 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<meta charset="utf-8" />
+		<title>Webix Rich Text Editor: Custom Menubar - Custom Options</title>
+		<!-- Webix Library -->
+		<script type="text/javascript" src="../../codebase/webix/webix.js"></script>
+		<link
+			rel="stylesheet"
+			type="text/css"
+			href="../../codebase/webix/webix.css"
+		/>
+
+		<!-- App -->
+		<script type="text/javascript" src="../../codebase/editor.js"></script>
+		<link rel="stylesheet" type="text/css" href="../../codebase/editor.css" />
+
+		<!-- Test data -->
+		<script src="../common/data.js"></script>
+	</head>
+	<body>
+		<script>
+			webix.ready(() => {
+				if (webix.env.mobile) webix.ui.fullScreen();
+
+				webix.ui({
+					type: "space",
+					cols: [
+						{
+							view: "editor",
+							value: dummyText,
+							menubar: {
+								file: true,
+								menu: {
+									value: "Group",
+									data: [
+										{ id: "option-1", value: "Option 1" },
+										{ id: "option-2", value: "Option 2" },
+									],
+								},
+							},
+							upload: "https://docs.webix.com/richtext-backend/images",
+							on: {
+								onMenuItemClick: item => {
+									webix.message(item);
+								},
+							},
+						},
+					],
+				});
+			});
+		</script>
+	</body>
+</html>

@@ -1,0 +1,125 @@
+<!doctype html>
+<html>
+<head>
+    <title>Smart Table</title>
+    <meta  name = "viewport" content = "initial-scale = 1.0, maximum-scale = 1.0, user-scalable = no">
+
+    <script src="../../codebase/webix/webix.js?v=11.3.0" type="text/javascript" charset="utf-8"></script>
+    <script src="../../codebase/spreadsheet.js?v=11.3.0" type="text/javascript" charset="utf-8"></script>
+
+    <link rel="stylesheet" type="text/css" href="../../codebase/webix/webix.css?v=11.3.0">
+    <link rel="stylesheet" type="text/css" href="../../codebase/spreadsheet.css?v=11.3.0">
+
+    <script src="./data/smart_table_data.js?v=11.3.0" charset="utf-8"></script>
+</head>
+<body>
+<script type="text/javascript">
+    webix.ready(function(){
+        const tableSettingsWin = webix.ui({
+            view:"window",
+            head:"Add Table",
+            position:"center",
+            modal:true,
+            width:615,
+            close:true,
+            body:{
+                view:"form",
+                on:{
+                    onChange: ()=> addTable(true)
+                },
+                elements:[
+                    { margin:10, cols:[
+                        {rows:[
+                            { view:"fieldset", label:"Table Settings", body:{
+                                rows:[
+                                    { view:"text", name:"range", label:"Range:", placeholder:"A1:C6"},
+                                    { view:"checkbox", name:"filters", label:"Filters:"},
+                                ]
+                            }},
+                            { view:"fieldset", label:"Header", body:{
+                                rows:[
+                                    { view:"colorpicker", name:"header_background", label:"Background", clear:true},
+                                    { view:"colorpicker", name:"header_color", label:"Color", clear:true},
+                                ]
+                            }},
+                        ]},
+                        {rows:[
+                            { view:"fieldset", label:"Odd rows", body:{
+                                rows:[
+                                    { view:"colorpicker", name:"odd_background", label:"Background", clear:true},
+                                    { view:"colorpicker", name:"odd_color", label:"Color", clear:true},
+                                ]
+                            }},
+                            { view:"fieldset", label:"Even rows", body:{
+                                rows:[
+                                    { view:"colorpicker", name:"even_background", label:"Background", clear:true},
+                                    { view:"colorpicker", name:"even_color", label:"Color", clear:true},
+                                ]
+                            }},
+                        ]},
+                    ]},
+                    {view:"label", label:"Preview:"},
+                    {
+                        view:"spreadsheet", height:140, id:"preview", readonly:true,
+                        rowCount:5, columnCount:5, columnWidth:105, rowHeight:20,
+                    },
+                    { view:"button", label:"Apply" , type:"form", click: ()=> addTable() },
+                ],
+                elementsConfig:{ labelWidth: 100 }
+            }
+        });
+
+        function addTable(preview){
+            const ssheet = preview ? $$("preview") : spreadsheet;
+            const form = tableSettingsWin.getBody();
+            const vals = form.getValues();
+            range = ssheet.refToPos(preview ? "A1:E5" : vals.range);
+            if(range){
+                ssheet.groupUndo(()=>{
+                    for(let c = range[1]; c <= range[3]; c++){
+                        ssheet.setCellFilter(range[0], c, vals.filters ? {} : null);
+                        for(let r = range[0]; r <= range[2]; r++){
+                            const type = r == range[0] ? "header" : ((r-range[0])%2 ? "odd" : "even");
+                            const oldStyle = ssheet.getStyle(r,c);
+                            const style = {background: vals[type+"_background"], color: vals[type+"_color"]};
+                            const styleProps = ssheet.addStyle(style, oldStyle);
+                            ssheet.setStyle(r,c,styleProps);
+                        }
+                    }
+                });
+                ssheet.refresh();
+                if(!preview)
+                    tableSettingsWin.hide();
+            }
+            else{
+                ssheet.alert({text:"Range is not correct!", type:"alert-error"});
+            }
+        }
+
+        const spreadsheet = webix.ui({
+            view:"spreadsheet",
+            data,
+            subbar:{
+                view:"button", label:"ADD TABLE", css:"webix_ssheet_toolbar", click:()=>{
+                    tableSettingsWin.getBody().setValues({
+                        range:spreadsheet.getSelectedRange()||"",
+                        header_background:"#5E5E5E",
+                        header_color :"#E8E8E8",
+                        odd_background:"#8C8C8C",
+                        odd_color:"#E8E8E8",
+                        even_background:"#A3A3A3",
+                        even_color:"#E8E8E8",
+                        filters: true
+                    });
+                    const preview = $$("preview");
+                    preview.reset();
+                    preview.parse(webix.copy(previewData));
+                    addTable(true);
+                    tableSettingsWin.show();
+                }
+            }
+        });
+    });
+</script>
+</body>
+</html>

@@ -1,0 +1,90 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<meta charset="utf-8" />
+		<title>Webix Rich Text Editor: Custom context menu options</title>
+		<!-- Webix Library -->
+		<script type="text/javascript" src="../../codebase/webix/webix.js"></script>
+		<link
+			rel="stylesheet"
+			type="text/css"
+			href="../../codebase/webix/webix.css"
+		/>
+
+		<!-- App -->
+		<script type="text/javascript" src="../../codebase/editor.js"></script>
+		<link rel="stylesheet" type="text/css" href="../../codebase/editor.css" />
+
+		<!-- Test data -->
+		<script src="../common/data.js"></script>
+	</head>
+	<body>
+		<script>
+			webix.ready(() => {
+				if (webix.env.mobile) webix.ui.fullScreen();
+
+				webix.ui({
+					type: "space",
+					cols: [
+						{
+							view: "editor",
+							value: dummyText,
+							menubar: true,
+							contextMenu: [
+								"copy",
+								"paste",
+								{ $template: "Separator" },
+								"bold",
+								"italic",
+								{ $template: "Separator" },
+								{
+									id: "pdf",
+									value: "Export to PDF",
+									icon: "rti-export",
+								},
+								{
+									id: "docx",
+									value: "Export to DOCX",
+									icon: "rti-document",
+								},
+								{ id: "print", value: "Print", icon: "rti-print" },
+								{
+									id: "print-selection",
+									value: "Print selection",
+									icon: "rti-print",
+								},
+							],
+							upload: "https://docs.webix.com/richtext-backend/images",
+							on: {
+								onContextMenuItemClick(action) {
+									if (action == "print-selection") {
+										const [start, end] = this.getService(
+											"operations"
+										).getCursor();
+										if (end) {
+											const s = window.getSelection();
+											const range = s.getRangeAt(0);
+											const clonedSelection = range.cloneContents();
+
+											webix.html.addCss(document.body, "webix_print");
+											const wrap = webix.html.create("div", {
+												class: "webix_ui_print webix_view",
+											});
+											wrap.appendChild(clonedSelection);
+											webix.html.insertBefore(wrap, "", document.body);
+
+											window.print();
+
+											webix.html.remove(wrap);
+											webix.html.removeCss(document.body, "webix_print");
+										}
+									}
+								},
+							},
+						},
+					],
+				});
+			});
+		</script>
+	</body>
+</html>
